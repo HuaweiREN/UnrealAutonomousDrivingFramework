@@ -5,5 +5,8 @@ Please note that the framework is developed under Unreal Engine ver.4.26.2. In t
 
 Should you have any questions or other perference related to the framework itself, please feel free to contact me with the email address below.
 
-COPYRIGHT: Huawei REN
+COPYRIGHT: Huawei REN  
 Contact: Ravidren@126.com
+
+## What is Autonomous Driving?
+Over the past few years, "how to make the vehicle drive with intelligence", becomes a hot topic among scientists and engineers. This is no longer a brainstorm concept, but a truely technology supported by in-market products. Tesla with their FSD,  
