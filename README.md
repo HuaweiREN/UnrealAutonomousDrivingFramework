@@ -149,30 +149,30 @@ Note: BP_AD_Car is currently set to be use Gear 1 all the time. Gear up and gear
  
 **Parameters and Calibrations**
 
-- AD Params->
+- AD Params->  
 		- Car Size: controls the vehicle bounding box (X: length, Y: width and Z: height), unit in cm.
-- Feature Status->
+- Feature Status->  
 		- controls the vehicle feature engagement (ON/OFF). Detailed feature explains please check the section *Classification of ADAS*
-- ADAS Calibration Table->
-		- RT Lateral Distance Thresold: controls how far the risk target in lateral distance (RT) will be recognized. This array contains 10 elements describing the environments.
-		- TODO: IMAGE NEEDED
-			- RT0: risk target ahead of the host vehicle. RT0 is for deciding the HPP follow target.
-			- RT1 and RT2: risk target ahead of the host vehicle. RT1 is the nearest vehicle to the host, RT2 is the second nearest vehicle to the host vehicle.
-			- RT3 and RT5: risk target ahead of, but to the left of the host vehicle. RT3 is the nearest vehicle to the host on left, RT5 is the second nearest vehicle to the host on left.
-			- RT4 and RT6: risk target ahead of, but to the right of the host vehicle. RT4 is the nearest vehicle to the host on right, RT6 is the second nearest vehicle to the host on right.
-			- RT7: risk target behind of the host vehicle. RT7 is the nearest vehicle to the host behind the host.
-			- RT8: risk target behind of, but to the left of the host vehicle. RT8 is the nearest vehicle to the host behind on left.
-			- RT9: risk target behind of, but to the right of the host vehicle. RT9 is the nearest vehicle to the host behind on right.
-		- FCA & FDI Display Thresold: TBD
-		- FCA yellow TTC: the Time-To-Collision thresold to FCA yellow telltale alert. Yellow telltale indicates there is potetial risk to collide with the target vehicle. If the TTC time is smaller than yellow TTC (but larger than red TTC), FCA telltale would change from green to yellow.
-		- FCA red TTC: the TTC thresold to FCA red telltale alert. Red telltale indicates the collision risk is very high and the condition is urgent. If the TTC time is smaller than red TTC, FCA telltale would change from yellow to red.
-		- AEB Level1 Brake Axis Vlaue: how much of the brake value the AEB feature would request when alert level1 is triggered. Current vehicle template would clamp value to 1.0 if the request is higher than 1.0. If you want better brake performance (shorter brake distance or shorter brake-to-static time), please adjust the torque curve instead.
-		- AEB Level2 Brake Axis Value: how much of the brake value the AEB feature would request when alert level2 is triggred. To have Level2 brake would bring customer/vehicle user comfortness when braking-to-stop from a high speed value (larger than 40kph). In real feature implementation on autonomous driving, engineers would probably define more levels with different brake request value percent.
-		- ACC Default Set Speed: the target speed value when the user engage ACC for the first time. AD Vehicle would accelerate to this speed and stablize at this speed. User can adjust the set speed any time they want in the customer HMI panel. The user set value would override the default set speed value.
-				- Note: if you also turned on the LCC feature. LCC would also request to slow down the vehicle in urgent conditions like:
-					- vehicle is driving with S curve in the past few second. LCC would request to slow down the vehicle to keep the vehicle body driving stable along the prediction path.
-					- vehicle is going to drive along a high curve prediction path. LCC would request to slow down the vehicle in advance to keep the body driving stable along the prediction path.
-		- ACC TTC Value w/RT: the TTC value where ACC use as the thresold to brake and accelerate. If risk target is detected and is safe enough to follow, vehicle would use ACC system to keep the TTC as close as to this thresold. In this way, feature users would feel like the host vehicle is following the target vehicle constantly.
-		- ACC Control PID & EpochNum: this calibration class contains 3 sets of values, w/o RT, w/ RT and Brake2Stop. Each set contains 4 values, which are the parameters to a PID controller and the epoch number to the integration part. 
-			- Note: PID controller is the simplest way to control a dynamic system with clear input and output. In AD framework, only propotion and integration values are used. Generally, A PI controller is enough to control the vehicle in AD framework. Sometimes, if you change the vehicle model into your own models, you may find overshooting is too obvious to work normally. If so, please also introduce the derivation part into PID controller.
-			- *what is PID controller?* Please refer to this ([PID Controller Explained • PID Explained](https://pidexplained.com/pid-controller-explained/)) where a normal PID controller is well-explained. 
+- ADAS Calibration Table->  
+		- RT Lateral Distance Thresold: controls how far the risk target in lateral distance (RT) will be recognized. This array contains 10 elements describing the environments.  
+		- TODO: IMAGE NEEDED  
+			- RT0: risk target ahead of the host vehicle. RT0 is for deciding the HPP follow target.  
+			- RT1 and RT2: risk target ahead of the host vehicle. RT1 is the nearest vehicle to the host, RT2 is the second nearest vehicle to the host vehicle.  
+			- RT3 and RT5: risk target ahead of, but to the left of the host vehicle. RT3 is the nearest vehicle to the host on left, RT5 is the second nearest vehicle to the host on left.  
+			- RT4 and RT6: risk target ahead of, but to the right of the host vehicle. RT4 is the nearest vehicle to the host on right, RT6 is the second nearest vehicle to the host on right.  
+			- RT7: risk target behind of the host vehicle. RT7 is the nearest vehicle to the host behind the host.  
+			- RT8: risk target behind of, but to the left of the host vehicle. RT8 is the nearest vehicle to the host behind on left.  
+			- RT9: risk target behind of, but to the right of the host vehicle. RT9 is the nearest vehicle to the host behind on right.  
+		- FCA & FDI Display Thresold: TBD  
+		- FCA yellow TTC: the Time-To-Collision thresold to FCA yellow telltale alert. Yellow telltale indicates there is potetial risk to collide with the target vehicle. If the TTC time is smaller than yellow TTC (but larger than red TTC), FCA telltale would change from green to yellow.  
+		- FCA red TTC: the TTC thresold to FCA red telltale alert. Red telltale indicates the collision risk is very high and the condition is urgent. If the TTC time is smaller than red TTC, FCA telltale would change from yellow to red.  
+		- AEB Level1 Brake Axis Vlaue: how much of the brake value the AEB feature would request when alert level1 is triggered. Current vehicle template would clamp value to 1.0 if the request is higher than 1.0. If you want better brake performance (shorter brake distance or shorter brake-to-static time), please adjust the torque curve instead.  
+		- AEB Level2 Brake Axis Value: how much of the brake value the AEB feature would request when alert level2 is triggred. To have Level2 brake would bring customer/vehicle user comfortness when braking-to-stop from a high speed value (larger than 40kph). In real feature implementation on autonomous driving, engineers would probably define more levels with different brake request value percent.  
+		- ACC Default Set Speed: the target speed value when the user engage ACC for the first time. AD Vehicle would accelerate to this speed and stablize at this speed. User can adjust the set speed any time they want in the customer HMI panel. The user set value would override the default set speed value.  
+				- Note: if you also turned on the LCC feature. LCC would also request to slow down the vehicle in urgent conditions like:  
+					- vehicle is driving with S curve in the past few second. LCC would request to slow down the vehicle to keep the vehicle body driving stable along the prediction path.  
+					- vehicle is going to drive along a high curve prediction path. LCC would request to slow down the vehicle in advance to keep the body driving stable along the prediction path.  
+		- ACC TTC Value w/RT: the TTC value where ACC use as the thresold to brake and accelerate. If risk target is detected and is safe enough to follow, vehicle would use ACC system to keep the TTC as close as to this thresold. In this way, feature users would feel like the host vehicle is following the target vehicle constantly.  
+		- ACC Control PID & EpochNum: this calibration class contains 3 sets of values, w/o RT, w/ RT and Brake2Stop. Each set contains 4 values, which are the parameters to a PID controller and the epoch number to the integration part.   
+			- Note: PID controller is the simplest way to control a dynamic system with clear input and output. In AD framework, only propotion and integration values are used. Generally, A PI controller is enough to control the vehicle in AD framework. Sometimes, if you change the vehicle model into your own models, you may find overshooting is too obvious to work normally. If so, please also introduce the derivation part into PID controller.  
+			- *what is PID controller?* Please refer to this ([PID Controller Explained • PID Explained](https://pidexplained.com/pid-controller-explained/)) where a normal PID controller is well-explained.   
