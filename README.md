@@ -8,6 +8,7 @@ Should you have any questions or other perference related to the framework itsel
 
 COPYRIGHT: Huawei REN  
 Contact: Ravidren@126.com
+Introductions & Tutorials: TODO: add tutorial links
 
 ## What is Autonomous Driving (AD)?
 Over the past few years, "how to make the vehicle drive with intelligence", becomes a hot topic among scientists and engineers. This is no longer a brainstorm concept, but a truely technology supported by in-market products. Tesla with their FSD,  GM with Super Cruise, Xpeng with NOP, are suddenly coming together onto audience choice list. Today, you may still use words like "beautiful design, large trunk space" to describe your preferences to a car, but we believe in future, "good autonomous driving ability" will also become an important attribute to "steal" money out of your wallet, of course, willingly.
@@ -137,12 +138,12 @@ Note that in AD framework, the vehicle dynamics and the ADAS feature sensors and
 		- the reason to do this is because the input name and input mapping (keyboard, mouse and controllers) are changed between UE4 and UE5. New mapping has been stored in the *UE5 Input Setup.ini*. This is only a convenience step, manual input is also ok.
 
 ### Project Layout
-Core blueprints are stored in Content->AD folder.
+Core blueprints are stored in Content->AD folder. In this tutorial we would only introduce you the BP_AD_Car. However, you are always welcomed to modify the controller logics and calibration logics into yours.  
 
 #### Vehicle Blueprint
 There are 3 vehicle blueprints in AD->Car path. Among them, BP_AD_Car is the one equipped with autonomous driving features. BP_RT_Car is the risk target template where developers can assign logics to them for behave as target. BP_Demo_Car is the demo car the framework used to display features in the demo room. BP_Demo_Car should not be used in the project AD framework users working on.
 
-- BP_AD_Car
+- BP_AD_Car  
 If you are just using AD framework as an AI car asset into your project (no vehicle physics such as transmissions and tyre parameters are required to change), feel free to create child class from BP_AD_Car and replace the static mesh with your owns. Otherwise, we advise you to use your own vehicle assets and add sensors & controllers onto it, instead of using BP_AD_Car directly.
 
 Note: BP_AD_Car is currently set to be use Gear 1 all the time. Gear up and gear down actions are not activated. If in your project gear up and down is a must-have feature, you may need more fine tuning on the ADAS feature calibrations as gear up/down would consume the throttle/brake input no longer linearly.
@@ -151,10 +152,13 @@ Note: BP_AD_Car is currently set to be use Gear 1 all the time. Gear up and gear
 
 - AD Params->  
 		- Car Size: controls the vehicle bounding box (X: length, Y: width and Z: height), unit in cm.
+
 - Feature Status->  
 		- controls the vehicle feature engagement (ON/OFF). Detailed feature explains please check the section *Classification of ADAS*
+
 - ADAS Calibration Table->  
 		- RT Lateral Distance Thresold: controls how far the risk target in lateral distance (RT) will be recognized. This array contains 10 elements describing the environments.  
+		- 
 		- TODO: IMAGE NEEDED  
 			- RT0: risk target ahead of the host vehicle. RT0 is for deciding the HPP follow target.  
 			- RT1 and RT2: risk target ahead of the host vehicle. RT1 is the nearest vehicle to the host, RT2 is the second nearest vehicle to the host vehicle.  
@@ -176,3 +180,28 @@ Note: BP_AD_Car is currently set to be use Gear 1 all the time. Gear up and gear
 		- ACC Control PID & EpochNum: this calibration class contains 3 sets of values, w/o RT, w/ RT and Brake2Stop. Each set contains 4 values, which are the parameters to a PID controller and the epoch number to the integration part.   
 			- Note: PID controller is the simplest way to control a dynamic system with clear input and output. In AD framework, only propotion and integration values are used. Generally, A PI controller is enough to control the vehicle in AD framework. Sometimes, if you change the vehicle model into your own models, you may find overshooting is too obvious to work normally. If so, please also introduce the derivation part into PID controller.  
 			- *what is PID controller?* Please refer to this ([PID Controller Explained • PID Explained](https://pidexplained.com/pid-controller-explained/)) where a normal PID controller is well-explained.   
+			- w/o RT: this array controls the PID controller parameter when the AD vehicle finds no Risk Target is head of the host. The setpoint to this PID controller is the target speed. The output to this PID controller is the throttle input (from 0 to 1).  
+			- w/ RT: this array controls the PID controller parameter when the AD vehicle has Risk Target.  
+			- Brake2Stop: this array controls the PID controller parameter when the AD vehicle is quite clost to the risk target and choose to brake to stop. The reason why we seperate brake2stop and w/RT is because when the vehicle is driving at a very low speed, risk target recognition can be not as accurate as the vehicle is driving at normal speed.  
+				- The reason to this is because the host speed is counted as a factor when we determine if a target is a risk target or not. You can find the logic in SetRiskTarget. Of course you can override this part of logic to your owns so that probably Brake2Stop PID controller is able to combine with w/ RT.  
+				- In real world practice, Brake2Stop PID controller is indeed carefully considered in the ADAS domain, as in real world the nature of the camera and radar sensor performs poor when detecting the object with low speed or with short distance gap.   
+		- HPP Target Direction Factor: HPP is the abbr. to Host Prediction Path. Normally you do not need to adjust this calibration value as the Target Direction performs well in different vehicle model (tested). The simple explain of the target direction factor is in the picture below (TODO: add picture)  
+		- HPP Look Ahead Time: Normally when we are controlling an AD vehicle, we should not only focus on if our vehicle is in the correct path right now, but also on if the vehicle we are controlling is able to drive to the correct path in a few moments. Look Ahead Time is the value we should use for "Looking" the target path points ahead. Of course you can also set the value to 0 in AD framework and the vehicle will still be able to drive in the correct path under most conditions, but may deviate from it under some S-shape curves.  
+		- HPP Angle Tolerance (Center, L&R): There are 3 Predicted Path we stored in AD framework. Center HPP is the one we are targeting to drive along with. HPP left and HPP right are the two alternatives where we can use them as the lane change target. (e.g. if you are planning a changing-to-left-lane action, you are actually changing target HPP from the center one to the left one). The Tolerance angle is the value to define how wide we should recognize the HPP as center, left or right. You can find more explains in the picture below. (TODO: add picture)  
+		- LDW Alert Distance Thresold: This value controls how far we should send alert to drivers if AD Framework find the vehicle is deviated from the target path prediction. There are also 2 levels of alerts where the level 2 is using 60% of the thresold as the alert line. Level 1 alert will be triggered if the distance between the vehicle center point and the path prediction is beyond the thresold. (TODO: add picture)  
+		- LCC Control PID & EpochNum w/ Spline: When the vehicle is targeting to drive along a spline, this value would control the PID controller to reach as close as possible to the predicted path point.
+		- LCC S Vibration Look Back Avg Dist and Time: When we are using PID controller to control the vehicle driving along with the prediction path, you may find sometime the vehicle is not driving as expected, with S vibration/swings. If so, please consider to slow down the vehicle (normally the reason to this is because the steering angle is too high and the tire is no longer able to provide you enough side force. In this condition, we can either increase the frictional force on the tire, or slow down the vehicle speed to decrease the side force required). The Look Back Avg Dist is the second method where LCC would request a slow-down to decrease the side force required and to stablize the vehicle itself. (TODO: add picture)  
+			- Avg Dist:  this is the average distance thresold. If the actual average distance is larger than this value, LCC feature would control the vehicle to slow down to a specific speed (with maximum brake input -> too aggressive, can be optimized in your own project).  
+			- Time: this is how long we should look back to. The larger of the value, the longer time we look back. You can set this value to fit your own vehicle model. If you don't care, just leave it as default.   
+		- LCC High Curve Look Ahead Avg Dist and Time: When we are using PID Controller to control the vehicle driving along with the prediction path, you may find sometime the vehicle will not be able to pass a curve with small radius successfully. The reason to that is not because the steering input is not large enough, but still the tire side forces. Therefore, if the host vehicle are entering a high curve (small radius curve), the vehicle should slow down a bit and increase the steering input. Look Ahead Avg Dist and Time are two parameters to help for these high curves. (TODO: add picture)    
+			- Avg Dist: this is the average distance thresold. If the actual average distance is larger than this value, LCC feature would control the vehicle to slow down to a specific speed (with maximum brake input -> too aggressive, can be optimized in your own project).  
+			- Time: this is how long we should look ahead. The larger of the value, the longer time we look ahead. You can set this value to fit your own vehicle model. If you don't care, just leave it as default.  
+		- LCC Hazard Slow Down Speed Val: This value determines how much the speed the vehicle should decelerate to when S vibration protection or High Curve protection algos are requesting.  
+
+- BP_RT_Car  
+BP_RT_Car is the target used for AD cars to follow up / evade. If you would like to have your own risk target to use instead of the ones we prepared in AD framework. Please add a tag named as "RT" as the first tag at your own blueprint.  
+
+By doing so, BP_AD_Car will consider the blueprint as the risk target, and perform similar behavior as the BP_RT_Car.  
+
+#### At the End
+If you still feel confused on any part of the AD framework. Please feel free to let me know. We would try our best to help! Have a nice day! :D  
